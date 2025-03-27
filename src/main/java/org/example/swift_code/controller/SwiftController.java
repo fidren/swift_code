@@ -2,6 +2,7 @@ package org.example.swift_code.controller;
 
 import org.example.swift_code.model.BankBranch;
 import org.example.swift_code.model.BankBranchRequest;
+import org.example.swift_code.service.SwiftService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +20,8 @@ public class SwiftController {
     }
 
     @GetMapping("/{swift-code}")
-    public ResponseEntity<String> getBankBranch(@PathVariable("swift-code") String swiftCode) {
-        String bankBranch = swiftService.getBankBranch(swiftCode);
+    public ResponseEntity<BankBranch> getBankBranch(@PathVariable("swift-code") String swiftCode) {
+        BankBranch bankBranch = swiftService.getBankBranch(swiftCode);
         return ResponseEntity.ok(bankBranch);
     }
 

@@ -1,17 +1,17 @@
 package org.example.swift_code;
 
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
+import com.opencsv.exceptions.CsvException;
 import jakarta.annotation.PostConstruct;
 import org.example.swift_code.model.BankBranch;
 import org.example.swift_code.repository.BankBranchRepository;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class CsvDataLoader {
@@ -19,6 +19,7 @@ public class CsvDataLoader {
 
     private final BankBranchRepository bankBranchRepository;
     private final Map<String, BankBranch> swiftCodeToHeadquarterMap = new HashMap<>();
+    private final List<BankBranch> branchList = new LinkedList<>();
 
     public CsvDataLoader(BankBranchRepository bankBranchRepository) {
         this.bankBranchRepository = bankBranchRepository;
@@ -26,18 +27,33 @@ public class CsvDataLoader {
 
     @PostConstruct
     public void loadDataFromCsvFile(){
-        try(BufferedReader br = new BufferedReader(new FileReader(CSV_FILE_PATH))){
-            br.lines()
-                    .skip(1)
-                    .map(this::parseLineToBankBranch)
-                    .forEach(bankBranchRepository::save);
-        } catch (IOException e) {
+        try (CSVReader reader = new CSVReaderBuilder(new FileReader(CSV_FILE_PATH)).withSkipLines(1).build()) {
+            List<String[]> rows = reader.readAll();
+            int count = 0;
+            for (String[] row : rows) {
+                BankBranch bankBranch = parseLineToBankBranch(row);
+                if (bankBranch.isHeadquarter()) {
+                    count++;
+                    bankBranchRepository.save(bankBranch);
+                } else {
+                    branchList.add(bankBranch);
+                }
+            }
+            System.out.println("wpisano headquarters " + count + " do bazy danych");
+            count = 0;
+
+            for (BankBranch branch : branchList) {
+                count++;
+                assignToHeadquarter(branch);
+                bankBranchRepository.save(branch);
+            }
+            System.out.println("wpisano branch " + count + " do bazy danych");
+        } catch (IOException | CsvException e) {
             e.printStackTrace();
         }
     }
 
-    private BankBranch parseLineToBankBranch(String line) {
-        String[] split = line.split(",");
+    private BankBranch parseLineToBankBranch(String[] split) {
         String swiftCode = split[1];
         boolean isHeadquarter = swiftCode.endsWith("XXX");
 
@@ -45,15 +61,13 @@ public class CsvDataLoader {
 
         if(isHeadquarter){
             registerHeadquarter(swiftCode, bankBranch);
-        }else {
-            assignToHeadquarter(swiftCode, bankBranch);
         }
 
         return bankBranch;
     }
 
-    private void assignToHeadquarter(String swiftCode, BankBranch bankBranch) {
-        String headquarterSwiftCodePrefix = swiftCode.substring(0, 8);
+    private void assignToHeadquarter(BankBranch bankBranch) {
+        String headquarterSwiftCodePrefix = bankBranch.getSwiftCode().substring(0, 8);
         BankBranch headquarters = swiftCodeToHeadquarterMap.get(headquarterSwiftCodePrefix);
         bankBranch.setHeadquarter(headquarters);
 
@@ -62,6 +76,9 @@ public class CsvDataLoader {
                 headquarters.setBranches(new ArrayList<>());
             }
             headquarters.getBranches().add(bankBranch);
+            System.out.println("Przypisano " + bankBranch.getSwiftCode() + " do headquarters " + headquarters.getSwiftCode());
+        } else {
+            System.out.println("Headquarters not found, swiftcode brancha: " + bankBranch.getSwiftCode());
         }
     }
 

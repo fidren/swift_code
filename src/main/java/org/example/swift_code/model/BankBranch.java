@@ -3,12 +3,14 @@ package org.example.swift_code.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
 public class BankBranch {
     @Id
     private String swiftCode;
@@ -19,13 +21,12 @@ public class BankBranch {
     private String countryName;
     private boolean isHeadquarter;
 
-    @Getter
+    @OneToMany(mappedBy = "headquarter", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Setter
-    @OneToMany(mappedBy = "headquarter", fetch = FetchType.LAZY)
-    private List<BankBranch> branches;
+    private List<BankBranch> branches = new ArrayList<>();
 
     @Setter
     @ManyToOne
-    @JoinColumn(name = "headquarter_swiftCode")
+    @JoinColumn(name = "headquarter_swiftCode", referencedColumnName = "swiftCode")
     private BankBranch headquarter;
 }
