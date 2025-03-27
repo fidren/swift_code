@@ -18,7 +18,7 @@ public class CsvDataLoader {
     private static final String CSV_FILE_PATH = Paths.get(System.getProperty("user.dir"), "Interns_2025_SWIFT_CODES - Sheet1.csv").toString();
 
     private final BankBranchRepository bankBranchRepository;
-    private Map<String, BankBranch> swiftCodeToHeadquarterMap = new HashMap<>();
+    private final Map<String, BankBranch> swiftCodeToHeadquarterMap = new HashMap<>();
 
     public CsvDataLoader(BankBranchRepository bankBranchRepository) {
         this.bankBranchRepository = bankBranchRepository;
