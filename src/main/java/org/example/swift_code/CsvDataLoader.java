@@ -18,7 +18,7 @@ public class CsvDataLoader {
     private static final String CSV_FILE_PATH = Paths.get(System.getProperty("user.dir"), "Interns_2025_SWIFT_CODES - Sheet1.csv").toString();
 
     private final BankBranchRepository bankBranchRepository;
-    private final Map<String, BankBranch> swiftCodeToHeadquarterMap = new HashMap<>();
+    private final Set<String> headquartersSwiftCode = new HashSet<>();
     private final List<BankBranch> branchList = new LinkedList<>();
 
     public CsvDataLoader(BankBranchRepository bankBranchRepository) {
@@ -29,25 +29,20 @@ public class CsvDataLoader {
     public void loadDataFromCsvFile(){
         try (CSVReader reader = new CSVReaderBuilder(new FileReader(CSV_FILE_PATH)).withSkipLines(1).build()) {
             List<String[]> rows = reader.readAll();
-            int count = 0;
+
             for (String[] row : rows) {
                 BankBranch bankBranch = parseLineToBankBranch(row);
                 if (bankBranch.isHeadquarter()) {
-                    count++;
                     bankBranchRepository.save(bankBranch);
                 } else {
                     branchList.add(bankBranch);
                 }
             }
-            System.out.println("wpisano headquarters " + count + " do bazy danych");
-            count = 0;
 
             for (BankBranch branch : branchList) {
-                count++;
                 assignToHeadquarter(branch);
                 bankBranchRepository.save(branch);
             }
-            System.out.println("wpisano branch " + count + " do bazy danych");
         } catch (IOException | CsvException e) {
             e.printStackTrace();
         }
@@ -68,22 +63,13 @@ public class CsvDataLoader {
 
     private void assignToHeadquarter(BankBranch bankBranch) {
         String headquarterSwiftCodePrefix = bankBranch.getSwiftCode().substring(0, 8);
-        BankBranch headquarters = swiftCodeToHeadquarterMap.get(headquarterSwiftCodePrefix);
-        bankBranch.setHeadquarter(headquarters);
-
-        if(headquarters != null){
-            if (headquarters.getBranches() == null) {
-                headquarters.setBranches(new ArrayList<>());
-            }
-            headquarters.getBranches().add(bankBranch);
-            System.out.println("Przypisano " + bankBranch.getSwiftCode() + " do headquarters " + headquarters.getSwiftCode());
-        } else {
-            System.out.println("Headquarters not found, swiftcode brancha: " + bankBranch.getSwiftCode());
+        if(headquartersSwiftCode.contains(headquarterSwiftCodePrefix)){
+            bankBranch.setHeadquarterSwiftCode(headquarterSwiftCodePrefix + "XXX");
         }
     }
 
     private void registerHeadquarter(String swiftCode, BankBranch bankBranch) {
-        swiftCodeToHeadquarterMap.put(swiftCode.substring(0, 8), bankBranch);
+        headquartersSwiftCode.add(swiftCode.substring(0, 8));
     }
 
     private BankBranch createBankBranch(String[] split, String swiftCode, boolean isHeadquarter) {

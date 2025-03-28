@@ -22,7 +22,11 @@ public class SwiftService {
         BankBranch bankBranch = bankBranchRepository.findById(swiftCode).orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Bank branch %s does not exist", swiftCode))
         );
-        return bankBranch;
+        if (!bankBranch.isHeadquarter())
+            return bankBranch;
+        else {
+            return bankBranch;
+        }
     }
 
     public List<String> getAllBankBranches(String countryISO2) {
