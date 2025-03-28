@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface BankBranchRepository extends JpaRepository<BankBranch, String> {
     List<BankBranch> findByHeadquarterSwiftCode(String swiftCode);
+    List<BankBranch> findByCountryISO2(String countryISO2);
 }

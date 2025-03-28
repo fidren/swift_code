@@ -64,8 +64,15 @@ public class SwiftService {
                 )).toList();
     }
 
-    public List<String> getAllBankBranches(String countryISO2) {
-        return List.of();
+    public BankBranchesCountryDTO getAllBankBranches(String countryISO2) {
+        List<BankBranch> bankBranches = bankBranchRepository.findByCountryISO2(countryISO2);
+        if (bankBranches.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Country ISO2 %s does not exist", countryISO2));
+        }
+        String countryName = bankBranches.getFirst().getCountryName();
+        List<BankBranchDTO> branchDTOS = mapBranchesToDTOList(bankBranches);
+
+        return new BankBranchesCountryDTO(countryISO2, countryName, branchDTOS);
     }
 
     public String createBankBranch(BankBranchRequest bankBranch) {
