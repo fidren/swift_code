@@ -54,7 +54,7 @@ public class CsvDataLoader {
         BankBranch bankBranch = createBankBranch(split, swiftCode, isHeadquarter);
 
         if(isHeadquarter){
-            registerHeadquarter(swiftCode, bankBranch);
+            registerHeadquarter(swiftCode);
         }
 
         return bankBranch;
@@ -67,7 +67,7 @@ public class CsvDataLoader {
         }
     }
 
-    private void registerHeadquarter(String swiftCode, BankBranch bankBranch) {
+    private void registerHeadquarter(String swiftCode) {
         headquartersSwiftCode.add(swiftCode.substring(0, 8));
     }
 
