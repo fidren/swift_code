@@ -10,12 +10,11 @@ import org.springframework.stereotype.Component;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.*;
 
 @Component
 public class CsvDataLoader {
-    private static final String CSV_FILE_PATH = Paths.get(System.getProperty("user.dir"), "Interns_2025_SWIFT_CODES - Sheet1.csv").toString();
+    private static final String CSV_FILE_PATH = "/data/Interns_2025_SWIFT_CODES.csv";
 
     private final BankBranchRepository bankBranchRepository;
     private final Set<String> headquartersSwiftCode = new HashSet<>();
