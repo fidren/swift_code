@@ -15,13 +15,13 @@ Follow these steps to set up the project:
 1. **Clone the repository**:
 
     ```bash
-    git clone 
+    git clone https://github.com/fidren/swift_code
     ```
     
 2. **Navigate to the project directory**:
 
     ```bash
-    cd swift-code-application
+    cd swift_code
     ```
 
 3. **Run the project using Docker Compose**:
