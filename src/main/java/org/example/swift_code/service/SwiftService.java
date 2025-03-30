@@ -75,11 +75,28 @@ public class SwiftService {
         return new BankBranchesCountryDTO(countryISO2, countryName, branchDTOS);
     }
 
-    public String createBankBranch(BankBranchRequest bankBranch) {
-        return "";
+    public void createBankBranch(SingleBankBranchDTO request) {
+        if(bankBranchRepository.existsById(request.swiftCode())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Swift Code %s already exists", request.swiftCode()));
+        }
+
+        BankBranch bankBranch = new BankBranch(
+                request.swiftCode(),
+                request.address(),
+                request.bankName(),
+                request.countryISO2(),
+                request.countryName(),
+                request.isHeadquarter(),
+                request.isHeadquarter() ? null : (request.swiftCode().substring(0, 8) +  "XXX")
+        );
+
+        bankBranchRepository.save(bankBranch);
     }
 
     public void deleteBankBranch(String swiftCode) {
+        if(!bankBranchRepository.existsById(swiftCode)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Swift Code %s does not exist", swiftCode));
+        }
         this.bankBranchRepository.deleteById(swiftCode);
     }
 }

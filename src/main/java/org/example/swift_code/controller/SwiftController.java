@@ -2,11 +2,14 @@ package org.example.swift_code.controller;
 
 import org.example.swift_code.model.BankBranchRequest;
 import org.example.swift_code.model.BankBranchesCountryDTO;
+import org.example.swift_code.model.SingleBankBranchDTO;
 import org.example.swift_code.service.SwiftService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 
 @RestController
@@ -32,14 +35,14 @@ public class SwiftController {
     }
 
     @PostMapping()
-    public ResponseEntity<String> createBankBranch(@RequestBody BankBranchRequest bankBranch) {
-        String createdBankBranch = swiftService.createBankBranch(bankBranch);
-        return new ResponseEntity<>(createdBankBranch, HttpStatus.CREATED);
+    public ResponseEntity<Map<String, String>> createBankBranch(@RequestBody SingleBankBranchDTO bankBranch) {
+        swiftService.createBankBranch(bankBranch);
+        return ResponseEntity.ok(Map.of("message", "Bank branch successfully created!"));
     }
 
     @DeleteMapping("/{swift-code}")
-    public ResponseEntity<Void> deleteBankBranch(@PathVariable("swift-code") String swiftCode) {
+    public ResponseEntity<Map<String, String>> deleteBankBranch(@PathVariable("swift-code") String swiftCode) {
         swiftService.deleteBankBranch(swiftCode);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(Map.of("message", "Bank branch successfully deleted!"));
     }
 }

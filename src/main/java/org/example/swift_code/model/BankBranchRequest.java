@@ -6,5 +6,5 @@ public class BankBranchRequest {
     private String bankName;
     private String countryISO2;
     private String countryName;
-    private boolean isHeadquarter;
+    private String isHeadquarter;
 }
